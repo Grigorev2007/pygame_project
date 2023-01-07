@@ -100,7 +100,7 @@ class Board:
                         screen,
                         "yellow",
                         (x + self.cell_size // 2, y + self.cell_size // 2),
-                        3)
+                        4)
                 b += 1
 
 
