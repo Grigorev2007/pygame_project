@@ -3,7 +3,7 @@ import sys
 import pygame
 
 pygame.init()
-FPS = 50  # количество кадров в секунду
+FPS = 20  # количество кадров в секунду
 SIZE = WIDTH, HEIGHT = 650, 700
 all_sprites = pygame.sprite.Group()
 x_pac = 1
@@ -115,14 +115,20 @@ class Pacman(pygame.sprite.Sprite):
 
             if args[0] == "left":
                 x_pac -= 1
-                if self.level[x_pac][y_pac] != "#":
+                if x_pac == -1 and y_pac == 9:
+                    self.rect = self.rect.move(570, 0)
+                    x_pac = 19
+                elif self.level[x_pac][y_pac] != "#":
                     self.rect = self.rect.move(-30, 0)
                 else:
                     x_pac += 1
 
             if args[0] == "right":
                 x_pac += 1
-                if self.level[x_pac][y_pac] != "#":
+                if x_pac == 20 and y_pac == 9:
+                    self.rect = self.rect.move(-570, 0)
+                    x_pac = 0
+                elif self.level[x_pac][y_pac] != "#":
                     self.rect = self.rect.move(30, 0)
                 else:
                     x_pac -= 1
