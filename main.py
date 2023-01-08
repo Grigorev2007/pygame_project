@@ -91,21 +91,21 @@ class Pacman(pygame.sprite.Sprite):
         self.image = Pacman.image
         self.image = pygame.transform.scale(self.image, (22, 22))
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH // 2, HEIGHT // 2)
+        self.rect.center = (70, 120)
 
     def update(self, *args):
         if args:
             if args[0] == "up":
-                self.rect = self.rect.move(0, -10)
+                self.rect = self.rect.move(0, -30)
 
             if args[0] == "down":
-                self.rect = self.rect.move(0, 10)
+                self.rect = self.rect.move(0, 30)
 
             if args[0] == "left":
-                self.rect = self.rect.move(-10, 0)
+                self.rect = self.rect.move(-30, 0)
 
             if args[0] == "right":
-                self.rect = self.rect.move(10, 0)
+                self.rect = self.rect.move(30, 0)
 
 
 def main():
