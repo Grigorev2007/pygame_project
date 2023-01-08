@@ -1,72 +1,55 @@
+import os
+import sys
 import pygame
 
-FPS = 50
+pygame.init()
+FPS = 50  # количество кадров в секунду
 SIZE = WIDTH, HEIGHT = 650, 700
+all_sprites = pygame.sprite.Group()
+
+
+def load_level(filename):
+    # читаем уровень, убирая символы перевода строки
+    with open(filename, 'r') as mapFile:
+        level_map = [line.strip() for line in mapFile]
+    max_width = max(map(len, level_map))
+
+    # дополняем каждую строку пустыми клетками ('*')
+    return list(map(lambda x: x.ljust(max_width, '*'), level_map))
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join(name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    return image
 
 
 class Board:
-    def __init__(self, width, height):
+    # создание поля
+    def __init__(self, width, height, level):
         self.width = width
         self.height = height
+        self.level = level
         self.board = [
             [0] * width for _ in range(height)
         ]
+        # значения по умолчанию
         self.left = 10
         self.top = 10
         self.cell_size = 30
 
+    # настройка внешнего вида
     def set_view(self, left, top, cell_size):
         self.left = left
         self.top = top
         self.cell_size = cell_size
 
-    def get_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        if cell is None:
-            # Пользователь нажал мимо поля, поэтому ничего не делать
-            return
-        self.on_click(cell)
-
-    def get_cell(self, mouse_pos):
-        mx, my = mouse_pos
-        if mx <= self.left or mx >= self.width * self.cell_size + self.left:
-            print("Пользователь нажал слишком слева или слишком справа")
-            return
-        if my <= self.top or my >= self.height * self.cell_size + self.top:
-            print("Пользователь нажал слишком высоко или слишком низко")
-            return
-        print("Пользователь внутри поля")
-
-        column = (mx - self.left) // self.cell_size
-        row = (my - self.top) // self.cell_size
-        return row, column
-
-    def on_click(self, cell):
-        print(f"Пользователь нажал на клетку {cell}")
-
     def render(self, screen):
-        level = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                 [1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
         a = -1
-        b = 0
         end_x = self.width * self.cell_size + self.left
         end_y = self.height * self.cell_size + self.top
         for x in range(self.left, end_x, self.cell_size):
@@ -79,7 +62,7 @@ class Board:
                     (x, y, self.cell_size, self.cell_size),
                     width=1
                 )
-                if level[a][b] != 0:
+                if self.level[a][b] != "*":
                     pygame.draw.rect(
                         screen,
                         (25, 25, 112),
@@ -97,34 +80,69 @@ class Board:
                         screen,
                         "yellow",
                         (x + self.cell_size // 2, y + self.cell_size // 2),
-                        4)
+                        3)
                 b += 1
+
+
+class Pacman(pygame.sprite.Sprite):
+    image = load_image("pacman.png")
+    def __init__(self, *group):
+        super().__init__(*group)
+        self.image = Pacman.image
+        self.image = pygame.transform.scale(self.image, (22, 22))
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH // 2, HEIGHT // 2)
+
+    def update(self, *args):
+        if args:
+            if args[0] == "up":
+                self.rect = self.rect.move(0, -10)
+
+            if args[0] == "down":
+                self.rect = self.rect.move(0, 10)
+
+            if args[0] == "left":
+                self.rect = self.rect.move(-10, 0)
+
+            if args[0] == "right":
+                self.rect = self.rect.move(10, 0)
 
 
 def main():
     pygame.display.set_caption('Клетчатое поле начало')
     screen = pygame.display.set_mode(SIZE)
 
+    Pacman(all_sprites)
+
     clock = pygame.time.Clock()
     running = True
-
-    board = Board(20, 20)
+    level = load_level("lvl.txt")
+    board = Board(20, 20, level)
     board.set_view(25, 75, 30)
+    board.render(screen)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 break
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                board.get_click(event.pos)
-        screen.fill('black')
-        board.render(screen)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            all_sprites.update("left")
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            all_sprites.update("right")
+        elif keys[pygame.K_UP] or keys[pygame.K_w]:
+            all_sprites.update("up")
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            all_sprites.update("down")
+        all_sprites.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
+        screen.fill("black")
+        board.render(screen)
 
 
 if __name__ == '__main__':
     pygame.init()
     main()
     pygame.quit()
-
