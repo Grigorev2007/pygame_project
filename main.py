@@ -6,6 +6,8 @@ pygame.init()
 FPS = 50  # количество кадров в секунду
 SIZE = WIDTH, HEIGHT = 650, 700
 all_sprites = pygame.sprite.Group()
+x_pac = 1
+y_pac = 1
 
 
 def load_level(filename):
@@ -86,37 +88,55 @@ class Board:
 
 class Pacman(pygame.sprite.Sprite):
     image = load_image("pacman.png")
-    def __init__(self, *group):
+    def __init__(self, level, *group):
         super().__init__(*group)
         self.image = Pacman.image
+        self.level = level
         self.image = pygame.transform.scale(self.image, (22, 22))
         self.rect = self.image.get_rect()
         self.rect.center = (70, 120)
 
     def update(self, *args):
+        global x_pac, y_pac
         if args:
             if args[0] == "up":
-                self.rect = self.rect.move(0, -30)
+                y_pac -= 1
+                if self.level[x_pac][y_pac] != "#":
+                    self.rect = self.rect.move(0, -30)
+                else:
+                    y_pac += 1
 
             if args[0] == "down":
-                self.rect = self.rect.move(0, 30)
+                y_pac += 1
+                if self.level[x_pac][y_pac] != "#":
+                    self.rect = self.rect.move(0, 30)
+                else:
+                    y_pac -= 1
 
             if args[0] == "left":
-                self.rect = self.rect.move(-30, 0)
+                x_pac -= 1
+                if self.level[x_pac][y_pac] != "#":
+                    self.rect = self.rect.move(-30, 0)
+                else:
+                    x_pac += 1
 
             if args[0] == "right":
-                self.rect = self.rect.move(30, 0)
+                x_pac += 1
+                if self.level[x_pac][y_pac] != "#":
+                    self.rect = self.rect.move(30, 0)
+                else:
+                    x_pac -= 1
 
 
 def main():
     pygame.display.set_caption('Клетчатое поле начало')
     screen = pygame.display.set_mode(SIZE)
+    level = load_level("lvl.txt")
 
-    Pacman(all_sprites)
+    Pacman(level, all_sprites)
 
     clock = pygame.time.Clock()
     running = True
-    level = load_level("lvl.txt")
     board = Board(20, 20, level)
     board.set_view(25, 75, 30)
     board.render(screen)
