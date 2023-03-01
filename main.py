@@ -301,7 +301,7 @@ def main():
         clock.tick(FPS)
         screen.fill("black")
         if checker == 168:
-            text_surface = my_font.render('Ты выиграл!', False, (0, 0, 205))
+            text_surface = my_font.render('Ты выиграл!', False, (255, 255, 0))
             screen.blit(text_surface, (210, 300))
             pygame.display.update()
             time.sleep(3)
